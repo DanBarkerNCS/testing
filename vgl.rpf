@@ -1,0 +1,93 @@
+{***********************************************************************
+*Librarys
+***********************************************************************}
+SET NOTPROTECTED
+SET NAME "DISPLAY/"
+SET COMPILE_OPTION DECLARE
+SET DATE FORMAT "DZ-MZ-YYYY"
+
+ENABLE WINDOWS
+JOIN STANDARD_LIBRARY STD_ARRAY
+JOIN STANDARD_LIBRARY STD_ARRAY_SELECT
+JOIN STANDARD_LIBRARY STD_PROMPT
+
+{***********************************************************************
+*Routines
+***********************************************************************}
+ROUTINE test_routine (VALUE option)
+
+DECLARE form, go_button
+
+    CREATE OBJECT PROMPT_CLASS_FORM, form
+
+    ARRAY form . user_info
+
+    form . height           = 45
+    form . width            = 50
+    form . row              = 5
+    form . column           = 20
+    form . header           = "Reprint: " 
+    form . return_behaviour = {FORM_RETURN_LEAVE} form_return_stay
+    form . button_style     = FORM_BUTTON_NONE
+
+    form . add_display ("Enter a comma separated list: ",2,1,PROMPT_RENDITION_BOLD)
+
+    PROMPT OBJECT form . user_info [ 1 ]
+        ON LINE 2 FROM 2
+      FORMAT TEXT1000
+      WITH ( width             = 45,
+             height            = 40,
+             length            = 1000,
+             foreground_colour = PROMPT_COLOUR_RED , 
+             bold              = TRUE )
+              
+    form . add_prompt ( form . user_info [ 1 ] )
+
+    PROMPT OBJECT go_button
+     CLASS "STD_PROMPT_BUTTON"
+        ON LINE 43  FROM 18
+      WITH ( caption       = "PRINT"                         ,
+             width         = 14                               ,
+             height        = 2                                ,
+	     tooltip       = "Proceed,
+             send_last_key = "DO"                       ,
+             icon_align    = BUTTON_ICON_ALIGN_LEFT        )
+
+    go_button . use_images ( EMPTY , 16 , 193 )
+
+    form . add_prompt ( go_button )
+
+    form . start_prompt ()
+    form . wait_prompt ()
+
+    IF form. get_last_key () = "DO" THEN
+
+    text_array = string_to_array ( STRIP ( form . user_info [ 1 ] . text ) , "," )
+
+    cnt = 0
+
+    WHILE ( cnt < size_of_array ( text_array ) ) DO
+
+        cnt = cnt + 1
+
+	IF  ( STRIP ( randomVariable = STRIP ( text_array [ cnt ] )  ) <> EMPTY ) THEN
+
+		start ( FALSE )
+		samp ( STRIP ( text_array [ cnt ] ) , 1 )
+		end ( FALSE )
+
+	ENDIF
+
+    ENDWHILE
+
+    ENDIF
+
+    form . end_prompt ()
+
+    IF ( form . get_last_key() = "EXIT" ) THEN
+
+        form . user_info [ 1 ] . set_text ( "" )
+
+    ENDIF
+    
+ENDROUTINE
