@@ -23,7 +23,7 @@ DECLARE form, go_button
     ARRAY form . user_info
 
     form . height           = 45
-    form . width            = 50
+    form . width            = 49
     form . row              = 5
     form . column           = 20
     form . header           = "Reprint: " 
